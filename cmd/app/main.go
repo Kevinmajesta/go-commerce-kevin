@@ -5,6 +5,7 @@ import (
 	"github.com/Kevinmajesta/go-commerce-kevin/internal/builder"
 	"github.com/Kevinmajesta/go-commerce-kevin/pkg/postgres"
 	"github.com/Kevinmajesta/go-commerce-kevin/pkg/server"
+	"github.com/Kevinmajesta/go-commerce-kevin/pkg/token"
 )
 
 func main() {
@@ -14,10 +15,12 @@ func main() {
 	db, err := postgres.InitPostgres(&cfg.Postgres)
 	checkError(err)
 
-	publicRoutes := builder.BuildAppPublicRoutes(db)
-	privateRoutes := builder.BuildAppPrivateRoutes()
+	tokenUseCase := token.NewTokenUseCase(cfg.JWT.SecretKey)
 
-	srv := server.NewServer("app", publicRoutes, privateRoutes)
+	publicRoutes := builder.BuildAppPublicRoutes(db, tokenUseCase)
+	privateRoutes := builder.BuildAppPrivateRoutes(db)
+
+	srv := server.NewServer("app", publicRoutes, privateRoutes, cfg.JWT.SecretKey)
 	srv.Run()
 }
 
