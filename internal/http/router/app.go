@@ -64,5 +64,20 @@ func AppPrivateRoutes(userHandler handler.UserHandler, productHandler handler.Pr
 			Path:    "/transactions",
 			Handler: transactionHandler.FindAllTransaction,
 		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/transactions",
+			Handler: transactionHandler.CreateTransaction,
+		},
+		{
+			Method:  http.MethodPut,
+			Path:    "/transactions/:id",
+			Handler: transactionHandler.UpdateTransaction,
+		},
+		{
+			Method:  http.MethodDelete,
+			Path:    "/transactions/:id",
+			Handler: transactionHandler.DeleteTransaction,
+		},
 	}
 }
