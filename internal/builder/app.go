@@ -21,8 +21,11 @@ func BuildAppPrivateRoutes(db *gorm.DB) []*route.Route {
 	userRepository := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepository, nil)
 	userHandler := handler.NewUserHandler(userService)
-	productRepository := repository.NewProductRepository(db) // Add this line
-	productService := service.NewProductService(productRepository) // Update this line
-	productHandler := handler.NewProductHandler(productService) // Update this line
-	return router.AppPrivateRoutes(userHandler, *productHandler) 
+	productRepository := repository.NewProductRepository(db)
+	productService := service.NewProductService(productRepository)
+	productHandler := handler.NewProductHandler(productService)
+	transactionRepository := repository.NewTransactionRepository(db) 
+	transactionService := service.NewTransactionService(transactionRepository) 
+	transactionHandler := handler.NewTransactionHandler(transactionService) 
+	return router.AppPrivateRoutes(userHandler, *productHandler, *transactionHandler) 
 }

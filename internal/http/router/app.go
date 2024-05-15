@@ -17,7 +17,7 @@ func AppPublicRoutes(userHandler handler.UserHandler) []*route.Route {
 	}
 }
 
-func AppPrivateRoutes(userHandler handler.UserHandler, productHandler handler.ProductHandler) []*route.Route {
+func AppPrivateRoutes(userHandler handler.UserHandler, productHandler handler.ProductHandler, transactionHandler handler.TransactionHandler) []*route.Route {
 	return []*route.Route{
 		{
 			Method:  http.MethodGet,
@@ -58,6 +58,11 @@ func AppPrivateRoutes(userHandler handler.UserHandler, productHandler handler.Pr
 			Method:  http.MethodDelete,
 			Path:    "/products/:id",
 			Handler: productHandler.DeleteProduct,
+		},
+		{
+			Method:  http.MethodGet,
+			Path:    "/transactions",
+			Handler: transactionHandler.FindAllTransaction,
 		},
 	}
 }
