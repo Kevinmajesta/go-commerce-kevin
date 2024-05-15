@@ -44,5 +44,20 @@ func AppPrivateRoutes(userHandler handler.UserHandler, productHandler handler.Pr
 			Path:    "/products",
 			Handler: productHandler.FindAllProduct,
 		},
+		{
+			Method:  http.MethodPost,
+			Path:    "/products",
+			Handler: productHandler.CreateProduct,
+		},
+		{
+			Method:  http.MethodPut,
+			Path:    "/products/:id",
+			Handler: productHandler.UpdateProduct,
+		},
+		{
+			Method:  http.MethodDelete,
+			Path:    "/products/:id",
+			Handler: productHandler.DeleteProduct,
+		},
 	}
 }
