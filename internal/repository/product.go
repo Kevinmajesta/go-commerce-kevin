@@ -1,7 +1,11 @@
 package repository
 
 import (
+	"encoding/json"
+	"time"
+
 	"github.com/Kevinmajesta/go-commerce-kevin/internal/entity"
+	"github.com/Kevinmajesta/go-commerce-kevin/pkg/cache"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -15,17 +19,35 @@ type ProductRepository interface {
 }
 
 type productRepository struct {
-	db *gorm.DB
+	db        *gorm.DB
+	cacheable cache.Cacheable
 }
 
-func NewProductRepository(db *gorm.DB) ProductRepository {
-	return &productRepository{db}
+func NewProductRepository(db *gorm.DB, cacheable cache.Cacheable) ProductRepository {
+	return &productRepository{db: db, cacheable: cacheable}
 }
 
 func (r *productRepository) FindAllProduct() ([]entity.Product, error) {
 	products := make([]entity.Product, 0)
-	if err := r.db.Find(&products).Error; err != nil {
-		return products, err
+
+	key := "FindAllProducts"
+
+	data, _ := r.cacheable.Get(key)
+	if data == "" {
+		if err := r.db.Find(&products).Error; err != nil {
+			return products, err
+		}
+		marshalledproducts, _ := json.Marshal(products)
+		err := r.cacheable.Set(key, marshalledproducts, 5*time.Minute)
+		if err != nil {
+			return products, err
+		}
+	} else {
+		// Data ditemukan di Redis, unmarshal data ke products
+		err := json.Unmarshal([]byte(data), &products)
+		if err != nil {
+			return products, err
+		}
 	}
 	return products, nil
 }

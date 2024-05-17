@@ -5,27 +5,33 @@ import (
 	"github.com/Kevinmajesta/go-commerce-kevin/internal/http/router"
 	"github.com/Kevinmajesta/go-commerce-kevin/internal/repository"
 	"github.com/Kevinmajesta/go-commerce-kevin/internal/service"
+	"github.com/Kevinmajesta/go-commerce-kevin/pkg/cache"
 	"github.com/Kevinmajesta/go-commerce-kevin/pkg/route"
 	"github.com/Kevinmajesta/go-commerce-kevin/pkg/token"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
 func BuildAppPublicRoutes(db *gorm.DB, tokenUseCase token.TokenUseCase) []*route.Route {
-	userRepository := repository.NewUserRepository(db)
+	userRepository := repository.NewUserRepository(db, nil)
 	userService := service.NewUserService(userRepository, tokenUseCase)
 	userHandler := handler.NewUserHandler(userService)
-	return router.AppPublicRoutes(userHandler)
-}
-
-func BuildAppPrivateRoutes(db *gorm.DB) []*route.Route {
-	userRepository := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepository, nil)
-	userHandler := handler.NewUserHandler(userService)
-	productRepository := repository.NewProductRepository(db)
+	productRepository := repository.NewProductRepository(db, nil)
 	productService := service.NewProductService(productRepository)
 	productHandler := handler.NewProductHandler(productService)
-	transactionRepository := repository.NewTransactionRepository(db) 
-	transactionService := service.NewTransactionService(transactionRepository) 
-	transactionHandler := handler.NewTransactionHandler(transactionService) 
-	return router.AppPrivateRoutes(userHandler, *productHandler, *transactionHandler) 
+	return router.AppPublicRoutes(userHandler, *productHandler)
+}
+
+func BuildAppPrivateRoutes(db *gorm.DB, redisDB *redis.Client) []*route.Route {
+	cacheable := cache.NewCacheable(redisDB)
+	userRepository := repository.NewUserRepository(db, cacheable)
+	userService := service.NewUserService(userRepository, nil)
+	userHandler := handler.NewUserHandler(userService)
+	productRepository := repository.NewProductRepository(db, cacheable)
+	productService := service.NewProductService(productRepository)
+	productHandler := handler.NewProductHandler(productService)
+	transactionRepository := repository.NewTransactionRepository(db)
+	transactionService := service.NewTransactionService(transactionRepository)
+	transactionHandler := handler.NewTransactionHandler(transactionService)
+	return router.AppPrivateRoutes(userHandler, *productHandler, *transactionHandler)
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/Kevinmajesta/go-commerce-kevin/pkg/route"
 )
 
-func AppPublicRoutes(userHandler handler.UserHandler) []*route.Route {
+func AppPublicRoutes(userHandler handler.UserHandler, productHandler handler.ProductHandler) []*route.Route {
 	return []*route.Route{
 		{
 			Method:  http.MethodPost,
