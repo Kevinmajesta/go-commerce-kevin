@@ -13,11 +13,17 @@ type Config struct {
 	Postgres PostgresConfig `envPrefix:"POSTGRES_"`
 	JWT      JwtConfig      `envPrefix:"JWT_"`
 	Redis    RedisConfig    `envPrefix:"REDIS_"`
+	Encrypt  EncryptConfig   `envPrefix:"ENCRYPT_"`
+}
+
+type EncryptConfig  struct {
+	IV        string `env:"IV"`
+	SecretKey string `env:"SECRET_KEY"`
 }
 
 type RedisConfig struct {
-	Host	 string `env:"HOST" envDefault:"localhost"`
-	Port	 string `env:"PORT" envDefault:"6379"`
+	Host     string `env:"HOST" envDefault:"localhost"`
+	Port     string `env:"PORT" envDefault:"6379"`
 	Password string `env:"PASSWORD" envDefault:""`
 }
 
